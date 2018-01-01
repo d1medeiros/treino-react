@@ -5,37 +5,16 @@ import $ from 'jquery';
 
 class Cadastro extends Component{
 
+    
     constructor(){
         super();
-        this.state = {nome:'', valor:0, dataPagamento:'', estado: false, repetir: false};
+        this.state = {nome:'', valor:0, dataPagamento:'', estado: false, repetir: false, tipoConta: ''};
         this.salva = this.salva.bind(this);
     }
 
     salva(event){
         event.preventDefault();
         console.log(this.state);
-
-
-        // axios(
-        //     {
-        //     method: 'post',
-        //     headers: {'Access-Control-Allow-Origin': '*'},
-        //     url: 'http://localhost:8080/meuorcamento/api/conta/salva', 
-        //     contentType: 'application/json; text/html; charset=utf-8',
-        //     body: {
-        //         nome: this.state.nome,
-        //         valor: this.state.valor,
-        //         dataPagamento: this.state.dataPagamento,
-        //         estado: this.state.estado,
-        //         repetir: this.state.repetir
-        //     }
-        //     })
-        //     .then(function (response) {
-        //     console.log(response);
-        //     })
-        //     .catch(function (error) {
-        //     console.log(error);
-        //     });
 
         $.ajax({
             type:'post',
@@ -47,7 +26,8 @@ class Cadastro extends Component{
                 valor: this.state.valor,
                 dataPagamento: this.state.dataPagamento,
                 estado: this.state.estado,
-                repetir: this.state.repetir
+                repetir: this.state.repetir,
+                tipoConta: this.state.tipoConta
             }),
             success: function(){
               this.setState({nome:'', valor:0, dataPagamento:'', estado: false, repetir: false});
@@ -72,14 +52,19 @@ class Cadastro extends Component{
         }
             
         campoSendoAlterado[nomeInput] = value;   
-        this.setState(campoSendoAlterado);   
-        console.log(value);
+        this.setState(campoSendoAlterado);  
     }
     
 
     render(){
+        var tipoConta = [
+                            { "id": 'GASTOS', "value":'Gastos'},
+                            { "id": 'GANHO', "value":'Ganho'}
+                        ];
+        tipoConta = tipoConta.map(function(c){
+            return <option key={c.id} value={c.id}>{c.value}</option>;
+        });
         return(
-
         <div>
 
             <div className="is-center">
@@ -87,7 +72,6 @@ class Cadastro extends Component{
             </div>
 
             <div className="content">
-            
                 <div className="pure-g">
                     <div className="l-box-lrg pure-u-1 pure-u-md-2-5">
                         <form className="pure-form pure-form-stacked" onSubmit={this.salva}>
@@ -100,9 +84,15 @@ class Cadastro extends Component{
                                 <input id="valor" type="number" placeholder="0000" value={this.state.valor} onChange={this.salvaAlteracao.bind(this,'valor')} />
                 
                                 <label htmlFor="dataPagamento">Data Pagamento</label>
-                                <input id="dataPagamento" type="date" value={this.state.dataPagamento} onChange={this.salvaAlteracao.bind(this,'dataPagamento')}/>
+                                <input id="dataPagamento" type="date"  value={this.state.dataPagamento} onChange={this.salvaAlteracao.bind(this,'dataPagamento')}/>
                 
-                
+                                <div className="pure-controls">
+                                    <select value={this.state.tipoConta} name="tipoConta" onChange={this.salvaAlteracao.bind(this,'tipoConta')} >
+                                    <option value="">Selecione</option>
+                                    {tipoConta}
+                                    </select>
+                                </div>
+
                                 <label htmlFor="estado">Status</label>
                                 <input id="estado" type="checkbox" checked={this.state.estado} onChange={this.salvaAlteracao.bind(this,'estado')} />
                 
@@ -115,13 +105,13 @@ class Cadastro extends Component{
                         </form>
                     </div>
                 </div>
-            </div>
             
            
+            </div>
         
         </div>
-
         );
+
     }
 
 }

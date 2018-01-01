@@ -11,7 +11,7 @@ class App extends Component {
         
             <div className="header">
                 <div className="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
-                    <Link className="pure-menu-heading" to="#">Home</Link>
+                    <a className="pure-menu-heading" href="/">Home</a>
 
                     <ul className="pure-menu-list">
                         <li className="pure-menu-item"><Link to="/cadastro" className="pure-menu-link">cadastro</Link></li>

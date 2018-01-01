@@ -6,10 +6,64 @@ class Contas extends Component{
 
     constructor(){
         super();
-        this.state = {listaGastos: [], total: 0, mes: '', mesValor:0, anoValor:0};
+        this.state = {
+            listaGastos: [], 
+            listaGanho: [], 
+            totalGastos: 0, 
+            totalGanho: 0, 
+            mes: '', 
+            mesValor:0, 
+            anoValor:0
+        };
         this.getNextContasPorMes = this.getNextContasPorMes.bind(this);
         this.getPrevContasPorMes = this.getPrevContasPorMes.bind(this);
+        this.selecionaConta = this.selecionaConta.bind(this);
         console.log("construtor");
+    }
+
+
+    sucessoAjax(resp){
+        var mesGastos = '';
+        var mesTemp = 0;
+        var anoTemp = 0;
+        var totalGastosTemp = 0;  
+        var totalGanhoTemp = 0;  
+
+        var  data = new Date(resp[0].dataPagamento.replace('-', ','));
+        
+        var listaGastosAtualizada = resp.filter(function(conta){
+            var isGastos = conta.tipoConta === 'GASTOS'
+            if(isGastos){
+                totalGastosTemp += conta.valor;
+            }
+
+            return isGastos;
+        });
+        
+        var listaGanhoAtualizada = resp.filter(function(conta){
+            var isGanho = conta.tipoConta === 'GANHO'
+            if(isGanho){
+                totalGanhoTemp += conta.valor;
+            }
+            return isGanho;
+          });
+        
+
+        console.log(listaGastosAtualizada)
+        var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        mesTemp = data.getMonth() + 1;
+        anoTemp = data.getFullYear();
+        mesGastos = monthNames[data.getMonth()];
+
+        return {
+              listaGastos: listaGastosAtualizada
+              , listaGanho: listaGanhoAtualizada
+              , totalGastos:totalGastosTemp
+              , totalGanho:totalGanhoTemp
+              , mes: mesGastos
+              , mesValor: mesTemp
+              , anoValor: anoTemp
+          };
     }
 
     componentDidMount(){  
@@ -19,26 +73,7 @@ class Contas extends Component{
             dataType: 'json',
             success:function(resp){    
 
-              var data;  
-              var totalGastos = 0;  
-              var mesGastos = '';
-              var mesTemp = 0;
-              var anoTemp = 0;
-              resp.map(function(conta){
-                    data = new Date(conta.dataPagamento);
-                    return totalGastos+= conta.valor;
-                });
-                var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                mesTemp = data.getMonth() + 1;
-                anoTemp = data.getFullYear();
-                mesGastos = monthNames[data.getMonth()];
-              this.setState({
-                        listaGastos: resp
-                        , total:totalGastos
-                        , mes: mesGastos
-                        , mesValor: mesTemp
-                        , anoValor: anoTemp
-                    });
+                this.setState(this.sucessoAjax(resp));
 
             }.bind(this)
           } 
@@ -50,7 +85,6 @@ class Contas extends Component{
         var isOk = false;
         var mes = this.state.mesValor;
         var ano = this.state.anoValor;
-        console.log("next mes - ano " + mes + ' - ' + ano);
         
         mes++;
         if(mes >= 1 && mes <= 12){
@@ -63,7 +97,7 @@ class Contas extends Component{
             isOk = false;
         }
         
-        console.log("next mes - ano " + mes + ' - ' + ano);
+        console.log("depois de mudar -> next mes - ano " + mes + ' - ' + ano);
         if(isOk){
             var paramDate = mes + '-' + ano
             $.ajax({
@@ -71,26 +105,7 @@ class Contas extends Component{
                 dataType: 'json',
                 success:function(resp){    
                     if(resp.length > 0){
-                        var data;  
-                        var totalGastos = 0;  
-                        var mesGastos = '';
-                        var mesTemp = 0;
-                        var anoTemp = 0;
-                        resp.map(function(conta){
-                              data = new Date(conta.dataPagamento);
-                              return totalGastos+= conta.valor;
-                          });
-                          var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                          mesTemp = data.getMonth() + 1;
-                          anoTemp = data.getFullYear();
-                          mesGastos = monthNames[data.getMonth()];
-                        this.setState({
-                                  listaGastos: resp
-                                  , total:totalGastos
-                                  , mes: mesGastos
-                                  , mesValor: mesTemp
-                                  , anoValor: anoTemp
-                              });
+                        this.setState(this.sucessoAjax(resp));
                     }
                 }.bind(this),
                   error:function(resp){
@@ -106,7 +121,6 @@ class Contas extends Component{
         var isOk = false;
         var mes = this.state.mesValor;
         var ano = this.state.anoValor;
-        console.log("next mes - ano " + mes + ' - ' + ano);
         
         mes--;
         if(mes >= 1 && mes <= 12){
@@ -127,26 +141,7 @@ class Contas extends Component{
                 dataType: 'json',
                 success:function(resp){    
                     if(resp.length > 0){
-                        var data;  
-                        var totalGastos = 0;  
-                        var mesGastos = '';
-                        var mesTemp = 0;
-                        var anoTemp = 0;
-                        resp.map(function(conta){
-                              data = new Date(conta.dataPagamento);
-                              return totalGastos+= conta.valor;
-                          });
-                          var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                          mesTemp = data.getMonth() + 1;
-                          anoTemp = data.getFullYear();
-                          mesGastos = monthNames[data.getMonth()];
-                        this.setState({
-                                  listaGastos: resp
-                                  , total:totalGastos
-                                  , mes: mesGastos
-                                  , mesValor: mesTemp
-                                  , anoValor: anoTemp
-                              });
+                        this.setState(this.sucessoAjax(resp));
                     }
                 }.bind(this),
                   error:function(resp){
@@ -158,6 +153,9 @@ class Contas extends Component{
     }
 
 
+    selecionaConta(event){
+        console.log(event);
+    }
 
     render(){
         console.log("render");
@@ -194,7 +192,7 @@ class Contas extends Component{
                     <div className="pure-u-5-5">
                         <table className="pure-table">
                             <thead>
-                                <tr>
+                                <tr className="header-table-name">
                                     <th colSpan="3" id="">{this.state.mes}</th>
                                 </tr>
                                 <tr>
@@ -208,31 +206,29 @@ class Contas extends Component{
                                 {
                                     this.state.listaGastos.map(function(conta){
                                         return(
-                                            <tr key={conta.id}>
+                                            <tr className={conta.estado?"estado-ok":""} key={conta.id} onClick={this.selecionaConta}>
                                                 <td>{conta.nome}</td>
                                                 <td>{conta.valor}</td>
                                                 <td>{conta.dataPagamento}</td>
                                             </tr>  
                                         );
-                                    })
+                                    }.bind(this))
                                 }
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <br />
-                
                 
                 {/* total gastos */}
-                <div className="pure-g">
+                <div className="pure-g total">
                     <div className="pure-u-1-3"></div>
                     <div className="pure-u-1-3"> 
                         <table className="pure-table pure-table-bordered">
                             <tbody>
                                 <tr>
-                                    <td id="gastos">Total</td>
-                                    <td>{this.state.total}</td>
+                                    <td className="header-total">Total</td>
+                                    <td>{this.state.totalGastos}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -240,45 +236,49 @@ class Contas extends Component{
                     <div className="pure-u-1-3"></div>
                 </div>
 
-                <br />
 
                 {/* tabela ganho */}
                 <div id="div-ganho" className="pure-g ganho">
-                    <div className="pure-u-5-5">
-                        <table className="pure-table">
-                            <thead>
-                                <tr>
-                                    <th colSpan="3" id="">Mes</th>
-                                </tr>
-                                <tr>
-                                    <th id="tableName">nome</th>
-                                    <th>valor</th>
-                                    <th>data</th>
-                                </tr>
-                            </thead>
+                <div className="pure-u-5-5">
+                    <table className="pure-table">
+                        <thead>
+                            <tr className="header-table-name">
+                                <th colSpan="3" id="">{this.state.mes}</th>
+                            </tr>
+                            <tr>
+                                <th id="tableName">nome</th>
+                                <th>valor</th>
+                                <th>data</th>
+                            </tr>
+                        </thead>
 
-                            <tbody>
-                                <tr>
-                                    <td>salario</td>
-                                    <td>1000</td>
-                                    <td>12/12/2017</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                        <tbody>
+                            {
+                                this.state.listaGanho.map(function(conta){
+                                    return(
+                                        <tr key={conta.id}>
+                                            <td>{conta.nome}</td>
+                                            <td>{conta.valor}</td>
+                                            <td>{conta.dataPagamento}</td>
+                                        </tr>  
+                                    );
+                                })
+                            }
+                        </tbody>
+                    </table>
                 </div>
+            </div>
 
-                <br />
                 
                 {/* total ganho */}
-                <div className="pure-g">
+                <div className="pure-g total">
                     <div className="pure-u-1-3"></div>
                     <div className="pure-u-1-3"> 
                         <table className="pure-table pure-table-bordered">
                         <tbody>
                             <tr>
-                                <td id="ganho">Total</td>
-                                <td>400</td>
+                                <td className="header-total">Total</td>
+                                <td>{this.state.totalGanho}</td>
                             </tr>
                         </tbody>
                         </table>

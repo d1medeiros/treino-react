@@ -22,20 +22,39 @@ h6,
 label {
     color: #34495e;
 }
+
 .app, th {
     text-align: center;
 }
+
 #tableName{
-    width: 210px;
+    width: 190px;
 }
 
-.gastos thead, #gastos {
+.estado-ok{
+    background-color: lightblue;
+}
+
+.total{
+    padding: 8%;
+}
+.total .header-total{
+    background-color: #cbcbcb;
+    color: #000;
+}
+
+.header-table-name{
+    background: #2d3e50;
+    color: #ddd;
+}
+
+/* .gastos thead, #gastos {
     background-color: #e7b2b2;
 }
 
 .ganho thead, #ganho{
     background-color: #a3b98e;
-}
+} */
 
 .pure-img-responsive {
     max-width: 100%;
