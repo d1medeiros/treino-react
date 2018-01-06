@@ -39,6 +39,17 @@ class Cadastro extends Component{
           });
     }
     
+    sucessoAjax(resp){
+        console.log(resp);
+        return{
+            nome: resp.nome, 
+            valor: resp.valor, 
+            dataPagamento: resp.dataPagamento, 
+            estado: resp.estado, 
+            repetir: resp.repetir, 
+            tipoConta: resp.tipoConta
+        }
+    }
 
     salvaAlteracao(nomeInput,event){
         var campoSendoAlterado = {};
@@ -55,6 +66,20 @@ class Cadastro extends Component{
         this.setState(campoSendoAlterado);  
     }
     
+    componentDidMount(){  
+        console.log("didMount ");
+        console.log(this.props.params.userId);
+        $.ajax({
+            url:"http://localhost:8080/meuorcamento/api/conta/" + this.props.params.userId,
+            dataType: 'json',
+            success:function(resp){    
+
+                this.setState(this.sucessoAjax(resp));
+
+            }.bind(this)
+          } 
+        );
+    }   
 
     render(){
         var tipoConta = [

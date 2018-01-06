@@ -13,6 +13,7 @@ ReactDOM.render(
   	<Route path="/" component={App}>
   		<IndexRoute component={Home}/>
 	  	<Route path="/cadastro" component={Cadastro}/>
+	  	<Route path="/cadastro/:userId" component={Cadastro}/>
 	  	<Route path="/contas" component={Contas}/>
   	</Route>
   </Router>),

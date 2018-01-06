@@ -1,0 +1,2 @@
+curl -v -d '{"nome":"seguro","valor":0,"dataPagamento":"2017-12-31","estado":false,"repetir":false,"tipoConta":"GASTOS"}' -H "Content-Type: application/json" -X POST http://localhost:8080/meuorcamento/api/conta/salva
+curl -v -d '{"nome":"seguro","valor":0,"dataPagamento":"2017-12-31","estado":false,"repetir":true,"tipoConta":"GASTOS"}' -H "Content-Type: application/json" -X POST http://localhost:8080/meuorcamento/api/conta/salva

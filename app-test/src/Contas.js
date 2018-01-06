@@ -1,6 +1,7 @@
 import React,{Component} from 'react';
+import TRContas from './componentes/TRContas';
+import PubSub from 'pubsub-js';
 import $ from 'jquery';
-
 
 class Contas extends Component{
 
@@ -13,11 +14,14 @@ class Contas extends Component{
             totalGanho: 0, 
             mes: '', 
             mesValor:0, 
-            anoValor:0
+            anoValor:0,
+            trSelecionadaGastos:0,
+            trSelecionadaGanho:0
+
         };
         this.getNextContasPorMes = this.getNextContasPorMes.bind(this);
         this.getPrevContasPorMes = this.getPrevContasPorMes.bind(this);
-        this.selecionaConta = this.selecionaConta.bind(this);
+        this.atualiza = this.atualiza.bind(this);
         console.log("construtor");
     }
 
@@ -47,9 +51,7 @@ class Contas extends Component{
             }
             return isGanho;
           });
-        
 
-        console.log(listaGastosAtualizada)
         var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         mesTemp = data.getMonth() + 1;
         anoTemp = data.getFullYear();
@@ -66,8 +68,7 @@ class Contas extends Component{
           };
     }
 
-    componentDidMount(){  
-        console.log("didMount");
+    atualiza(){
         $.ajax({
             url:"http://localhost:8080/meuorcamento/api/conta/atual",
             dataType: 'json',
@@ -78,6 +79,16 @@ class Contas extends Component{
             }.bind(this)
           } 
         );
+    }
+
+    componentDidMount(){  
+        console.log("didMount");
+        this.atualiza();
+
+        PubSub.subscribe('atualiza',function(topico,novaLista){
+            console.log(novaLista);
+            this.setState(this.sucessoAjax(novaLista));
+        }.bind(this));
     }     
 
     getNextContasPorMes(event){
@@ -101,7 +112,7 @@ class Contas extends Component{
         if(isOk){
             var paramDate = mes + '-' + ano
             $.ajax({
-                url:"http://localhost:8080/meuorcamento/api/conta/" + paramDate,
+                url:"http://localhost:8080/meuorcamento/api/conta/mesano/" + paramDate,
                 dataType: 'json',
                 success:function(resp){    
                     if(resp.length > 0){
@@ -137,7 +148,7 @@ class Contas extends Component{
         if(isOk){
             var paramDate = mes + '-' + ano
             $.ajax({
-                url:"http://localhost:8080/meuorcamento/api/conta/" + paramDate,
+                url:"http://localhost:8080/meuorcamento/api/conta/mesano/" + paramDate,
                 dataType: 'json',
                 success:function(resp){    
                     if(resp.length > 0){
@@ -152,14 +163,25 @@ class Contas extends Component{
         }
     }
 
-
-    selecionaConta(event){
-        console.log(event);
+    remover(event, conta){
+        event.stopPropagation();
+        console.log("Removendo " + conta.id);
+        $.ajax({
+            type:'post',
+            url:'http://localhost:8080/meuorcamento/api/conta/remove/' + conta.id,
+            contentType:'application/json',
+            dataType:'json',
+            success: function(res){
+                PubSub.publish('atualiza',res);
+            },
+            error: function(res, req){
+                console.log(res.status)
+            }           
+          });
     }
 
     render(){
         console.log("render");
-        console.log(this.state);
         return(
 
         <div>
@@ -202,19 +224,7 @@ class Contas extends Component{
                                 </tr>
                             </thead>
 
-                            <tbody>
-                                {
-                                    this.state.listaGastos.map(function(conta){
-                                        return(
-                                            <tr className={conta.estado?"estado-ok":""} key={conta.id} onClick={this.selecionaConta}>
-                                                <td>{conta.nome}</td>
-                                                <td>{conta.valor}</td>
-                                                <td>{conta.dataPagamento}</td>
-                                            </tr>  
-                                        );
-                                    }.bind(this))
-                                }
-                            </tbody>
+                            <TRContas lista={this.state.listaGastos} selecao={this.state.trSelecionadaGastos} onClick={this.remover} />
                         </table>
                     </div>
                 </div>
