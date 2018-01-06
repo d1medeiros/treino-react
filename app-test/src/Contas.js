@@ -21,7 +21,6 @@ class Contas extends Component{
         };
         this.getNextContasPorMes = this.getNextContasPorMes.bind(this);
         this.getPrevContasPorMes = this.getPrevContasPorMes.bind(this);
-        this.atualiza = this.atualiza.bind(this);
         console.log("construtor");
     }
 
@@ -68,28 +67,31 @@ class Contas extends Component{
           };
     }
 
-    atualiza(){
+
+    componentDidMount(){  
+        console.log("didMount");
         $.ajax({
             url:"http://localhost:8080/meuorcamento/api/conta/atual",
             dataType: 'json',
             success:function(resp){    
-
                 this.setState(this.sucessoAjax(resp));
-
             }.bind(this)
-          } 
-        );
+        });
+
+        PubSub.publish('atualiza-gastos', this.token);
     }
 
-    componentDidMount(){  
-        console.log("didMount");
-        this.atualiza();
-
-        PubSub.subscribe('atualiza',function(topico,novaLista){
-            console.log(novaLista);
-            this.setState(this.sucessoAjax(novaLista));
-        }.bind(this));
-    }     
+    componentWillMount(){
+        console.log("willMount");
+        this.token = PubSub.subscribe('atualiza-gastos',function(topico,index){
+                this.setState(this.state.listaGastos.pop(index));
+                console.log(this.state.listaGastos);
+            }.bind(this));
+    }   
+    
+    componentWillUnmount(){
+        PubSub.unsubscribe(this.token);
+      }
 
     getNextContasPorMes(event){
         event.preventDefault();  
@@ -172,7 +174,7 @@ class Contas extends Component{
             contentType:'application/json',
             dataType:'json',
             success: function(res){
-                PubSub.publish('atualiza',res);
+                PubSub.publish('atualiza-gastos', conta.id);
             },
             error: function(res, req){
                 console.log(res.status)
