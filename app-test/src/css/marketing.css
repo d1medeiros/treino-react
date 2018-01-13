@@ -47,10 +47,37 @@ label {
     display: none;
 }
 
-/* .show{
-    position: absolute;
-    z-index: 1;
-} */
+.altera{
+    display: none;
+}
+
+.popup-display {
+    display:none;
+}
+
+.popup-main{
+    position:fixed;
+    top:0;
+    left:0;
+    background:rgba(0,0,0,0.6);
+    z-index:1;
+    width:100%;
+    height:100%;
+}
+
+.popup{
+    position: fixed;
+    height: 80px;
+    top: 60px;
+    left: 20px;
+    right: 20px;
+    border-radius: 5px;
+    z-index:2;
+    margin: auto;
+    padding: 8px;
+    color: rgb(255, 255, 255);
+    background-color: #1f8dd6;
+}
 
 .total{
     padding: 8%;

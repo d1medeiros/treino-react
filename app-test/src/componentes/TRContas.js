@@ -1,22 +1,23 @@
 import React,{Component} from 'react';
 import Edit from 'react-icons/lib/fa/edit';
 import FaTimesCircle from 'react-icons/lib/fa/times-circle';
+
 import {Link} from 'react-router';
 
 export default class TRContas extends Component{
     
     constructor(){
         super();
-        this.state = {trSelecionadaGastos:0}
-        this.selecionaContaGastos = this.selecionaContaGastos.bind(this);
+        this.state = {trSelecionada:0}
+        this.selecionaConta = this.selecionaConta.bind(this);
         // this.editar = this.editar.bind(this);
     }
 
-    selecionaContaGastos(event, conta){
-        if(this.state.trSelecionadaGastos === conta.id){
-            this.setState({trSelecionadaGastos: 0});
+    selecionaConta(event, conta){
+        if(this.state.trSelecionada === conta.id){
+            this.setState({trSelecionada: 0});
         }else{
-            this.setState({trSelecionadaGastos: conta.id});
+            this.setState({trSelecionada: conta.id});
         }
     }
 
@@ -30,11 +31,11 @@ export default class TRContas extends Component{
                 this.props.lista.map(function(conta){
                     return(
                         <tr className={conta.estado?"estado-ok":""} 
-                        id={conta.id === this.state.trSelecionadaGastos?"selected":"" }
+                        id={conta.id === this.state.trSelecionada?"selected":"" }
                         key={conta.id} 
-                        onClick={e => this.selecionaContaGastos(e, conta)} >
+                        onClick={e => this.selecionaConta(e, conta)} >
                             <td>
-                                <div className={conta.id === this.state.trSelecionadaGastos?"show":"hide" }>
+                                <div className={conta.id === this.state.trSelecionada?"show":"hide" }>
                                     <Link  className="pure-button button-margin-3" to={'/cadastro/' + conta.id}>
                                         <Edit/>
                                     </Link>

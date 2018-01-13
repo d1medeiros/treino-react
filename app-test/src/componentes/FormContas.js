@@ -5,7 +5,15 @@ export default class FormContas extends Component{
 
     constructor(){
         super();
-        this.state = {nome:'', valor:0, dataPagamento:'', estado: false, repetir: false, tipoConta: ''};
+        this.state = {
+            nome:'', 
+            valor:0, 
+            dataPagamento:'', 
+            estado: false, 
+            repetir: false, 
+            tipoConta: '',
+            formAcao: 'salva'
+        };
         this.salva = this.salva.bind(this);
     }
  
@@ -17,14 +25,15 @@ export default class FormContas extends Component{
             dataPagamento: resp.dataPagamento, 
             estado: resp.estado, 
             repetir: resp.repetir, 
-            tipoConta: resp.tipoConta
+            tipoConta: resp.tipoConta,
+            formAcao: 'altera'
         }
     }
 
     
     componentDidMount(){  
         console.log("didMount ");
-        console.log(this.props.acao);
+        console.log(this.props);
         if(this.props.acao){
 
             $.ajax({
@@ -62,7 +71,11 @@ export default class FormContas extends Component{
                     tipoConta: this.state.tipoConta
                 }),
                 success: function(){
+                    var acaoAltera = this.state.formAcao;
                     this.setState({nome:'', valor:0, dataPagamento:'', estado: false, repetir: false, tipoConta: ''});
+                    if(acaoAltera === 'altera'){
+                        this.props.rota.push('/contas')         
+                    }
                     console.log(this.state)
                 }.bind(this),
                 error: function(res, req){
@@ -113,9 +126,11 @@ export default class FormContas extends Component{
                         <label htmlFor="estado">Status</label>
                         <input id="estado" type="checkbox" checked={this.state.estado} onChange={this.salvaAlteracao.bind(this,'estado')} />
         
-                        <label htmlFor="repetir">Repetir</label>
-                        <input id="repetir" type="checkbox" checked={this.state.repetir} onChange={this.salvaAlteracao.bind(this,'repetir')} />
-        
+                        <div className={this.state.formAcao}>
+                            <label  htmlFor="repetir">Repetir</label>
+                            <input id="repetir" type="checkbox" checked={this.state.repetir} onChange={this.salvaAlteracao.bind(this,'repetir')} />
+                        </div>
+
         
                         <button type="submit" className="pure-button">Enviar</button>
                     </fieldset>

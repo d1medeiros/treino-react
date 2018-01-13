@@ -1,28 +1,12 @@
 import React,{Component} from 'react';
 import FormContas from './componentes/FormContas'
-// import $ from 'jquery';
-// import axios from 'axios'
 
-// class CadastroSalva extends Component{
-    
-// }
-
-// class CadastroAltera extends Component{
-
-// }
 
 class Cadastro extends Component{
 
-    
-    // constructor(){
-    //     super();
-        
-    //     this.salva = this.salva.bind(this);
-    // }
-
-
-    
-
+    componentDidMount(){
+        console.log(this.props);
+    }
 
     render(){
         var tipoConta = [
@@ -42,7 +26,7 @@ class Cadastro extends Component{
             <div className="content">
                 <div className="pure-g">
                     <div className="l-box-lrg pure-u-1 pure-u-md-2-5">
-                       <FormContas tipos={tipoConta} acao={this.props.params.userId}/>
+                       <FormContas tipos={tipoConta} acao={this.props.params.userId} rota={this.props.router}/>
                     </div>
                 </div>
             
