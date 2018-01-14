@@ -59,6 +59,19 @@ label {
     display: none;
 }
 
+#total{
+    font-size: large;
+    font-weight: bold;
+}
+
+.positivo{
+    color: rgb(28, 184, 65); 
+}
+
+.negativo{
+    color: rgb(202, 60, 60); 
+}
+
 .popup-display {
     display:none;
 }
@@ -88,25 +101,22 @@ label {
 }
 
 .total{
-    padding: 8%;
+    padding: 4%;
 }
 .total .header-total{
     background-color: #cbcbcb;
     color: #000;
 }
 
+.margin-center{
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .header-table-name{
     background: #2d3e50;
     color: #ddd;
 }
-
-/* .gastos thead, #gastos {
-    background-color: #e7b2b2;
-}
-
-.ganho thead, #ganho{
-    background-color: #a3b98e;
-} */
 
 .pure-img-responsive {
     max-width: 100%;

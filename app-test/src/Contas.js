@@ -248,7 +248,9 @@ class Contas extends Component{
     render(){
         console.log("render");
         console.log(this.state);
-        console.log("render /");
+
+        var total = this.state.totalGanho - this.state.totalGastos; 
+        var positivoOuNegativo = total > 0 ? "positivo" : "negativo";
 
         return(
 
@@ -257,6 +259,8 @@ class Contas extends Component{
             <div className="is-center">
                 <h3>Contas</h3>
             </div>
+
+            <div className={ positivoOuNegativo + " is-center" } id="total">Saldo: R$ {total} </div>
 
             <div className="content is-center">
             
@@ -295,18 +299,18 @@ class Contas extends Component{
                 
                 {/* total gastos */}
                 <div className="pure-g total">
-                    <div className="pure-u-1-3"></div>
-                    <div className="pure-u-1-3"> 
-                        <table className="pure-table pure-table-bordered">
+                    <div className="pure-u-2-24"></div>
+                    <div className="pure-u-20-24"> 
+                        <table className="pure-table pure-table-bordered margin-center">
                             <tbody>
                                 <tr>
                                     <td className="header-total">Total</td>
-                                    <td>{this.state.totalGastos}</td>
+                                    <td>R$ {this.state.totalGastos}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <div className="pure-u-1-3"></div>
+                    <div className="pure-u-2-24"></div>
                 </div>
 
 
@@ -324,18 +328,18 @@ class Contas extends Component{
                 
                 {/* total ganho */}
                 <div className="pure-g total">
-                    <div className="pure-u-1-3"></div>
-                    <div className="pure-u-1-3"> 
-                        <table className="pure-table pure-table-bordered">
+                    <div className="pure-u-2-24"></div>
+                    <div className="pure-u-20-24"> 
+                        <table className="pure-table pure-table-bordered margin-center">
                         <tbody>
                             <tr>
                                 <td className="header-total">Total</td>
-                                <td>{this.state.totalGanho}</td>
+                                <td>R$ {this.state.totalGanho}</td>
                             </tr>
                         </tbody>
                         </table>
                     </div>
-                    <div className="pure-u-1-3"></div>
+                    <div className="pure-u-2-24"></div>
                 </div>
                
 
