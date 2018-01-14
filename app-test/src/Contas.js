@@ -2,7 +2,7 @@ import React,{Component} from 'react';
 import {Link} from 'react-router';
 import FaPlus from 'react-icons/lib/fa/plus';
 import TRContas from './componentes/TRContas';
-import Popup from './componentes/Popup';
+// import Popup from './componentes/Popup';
 import PubSub from 'pubsub-js';
 import $ from 'jquery';
 
@@ -19,9 +19,7 @@ class Contas extends Component{
             mesValor:0, 
             anoValor:0,
             trSelecionadaGastos:0,
-            trSelecionadaGanho:0,
-            popupRemoverMostrar: false,
-            contaToRemove:{}
+            trSelecionadaGanho:0
 
         };
         this.getNextContasPorMes = this.getNextContasPorMes.bind(this);
@@ -39,21 +37,49 @@ class Contas extends Component{
             }.bind(this)
         });
 
-        PubSub.publish('atualiza-gastos', this.token);
+        PubSub.subscribe('atualiza.gastos',function(topico,index){
+            var newList = this.state.listaGastos.filter(x => x.id !== index);
+            this.setState({listaGastos: newList});
+        }.bind(this));
+
+        PubSub.subscribe('atualiza.ganho',function(topico,index){
+            var newList = this.state.listaGanho.filter(x => x.id !== index);
+            this.setState({listaGanho: newList});
+        }.bind(this));
+
+        PubSub.subscribe('popup.confirmar',function(topico,obj){
+            console.log(topico);
+            var conta = obj.conta;
+            var tipo = obj.tipo;
+            console.log(conta + ' - ' + tipo);
+            
+            if(tipo === 'GASTOS'){
+                this.removerGastos(conta, true);
+            }else if(tipo === 'GANHO'){
+                this.removerGanho(conta, true);
+            }
+        }.bind(this));
+
+        PubSub.subscribe('popup.recusar',function(topico,obj){
+            console.log(topico);
+            var conta = obj.conta;
+            var tipo = obj.tipo;
+            console.log(conta + ' - ' + tipo);
+            
+            if(tipo === 'GASTOS'){
+                this.removerGastos(conta, false);
+            }else if(tipo === 'GANHO'){
+                this.removerGanho(conta, false);
+            }
+        }.bind(this));
+
     }
 
     componentWillMount(){
         console.log("willMount");
-        this.token = PubSub.subscribe('atualiza-gastos',function(topico,index){
-                this.setState(this.state.listaGastos.pop(index));
-                this.setState({popupRemoverMostrar: false, contaToRemove: {}});
-                console.log(this.state.listaGastos);
-            }.bind(this));
     }   
     
-    componentWillUnmount(){
-        PubSub.unsubscribe(this.token);
-    }
+    componentWillUnmount(){}
 
     sucessoAjax(resp){
         var mesGastos = '';
@@ -169,26 +195,23 @@ class Contas extends Component{
         }
     }
 
-    removerSair(){
+    removerGastos(conta, pTodos){
         
-    }
-
-    remover(event, conta){
-        event.stopPropagation();
-        this.setState({popupRemoverMostrar: true, contaToRemove: conta});
-        console.log("remover");
-    }
-
-    removerThis(){
-        var conta = this.state.contaToRemove;
-        console.log("Removendo " + conta.id);
+        var param = "";
+        if(pTodos){
+            param = "todos/" + conta.id;
+        }else{
+            param = conta.id;
+        }
+        
+        console.log("Removendo " + param);
         $.ajax({
             type:'post',
-            url:'http://localhost:8080/meuorcamento/api/conta/remove/' + conta.id,
+            url:'http://localhost:8080/meuorcamento/api/conta/remove/' + param,
             contentType:'application/json',
             dataType:'json',
             success: function(res){
-                PubSub.publish('atualiza-gastos', conta.id);
+                PubSub.publish('atualiza.gastos', conta.id);
             },
             error: function(res, req){
                 console.log(res.status)
@@ -196,22 +219,31 @@ class Contas extends Component{
           });
     }
 
-    removerAll(){
-        var conta = this.state.contaToRemove;
-        console.log("Removendo " + conta.id);
+    removerGanho(conta, pTodos){
+        
+        var param = "";
+        if(pTodos){
+            param = "todos/" + conta.id;
+        }else{
+            param = conta.id;
+        }
+        
+        console.log("Removendo " + param);
         $.ajax({
             type:'post',
-            url:'http://localhost:8080/meuorcamento/api/conta/remove/' + conta.id,
+            url:'http://localhost:8080/meuorcamento/api/conta/remove/' + param,
             contentType:'application/json',
             dataType:'json',
             success: function(res){
-                PubSub.publish('atualiza-gastos', conta.id);
+                PubSub.publish('atualiza.ganho', conta.id);
             },
             error: function(res, req){
                 console.log(res.status)
             }           
           });
     }
+
+
 
     render(){
         console.log("render");
@@ -247,25 +279,16 @@ class Contas extends Component{
                     </div>
                 </div>
 
-                <Popup label="Deseja repetir para o mesmo?" mostrar={this.state.popupRemoverMostrar} confirmar={this.removerAll.bind(this)} recusar={this.removerThis.bind(this)}/>
+                
 
                 {/* tabela gastos */}
                 <div id="div-gastos" className="pure-g gastos">
                     <div className="pure-u-5-5">
-                        <table className="pure-table">
-                            <thead>
-                                <tr className="header-table-name">
-                                    <th colSpan="3" id="">{this.state.mes}</th>
-                                </tr>
-                                <tr>
-                                    <th id="tableName">nome</th>
-                                    <th>valor</th>
-                                    <th>data</th>
-                                </tr>
-                            </thead>
-
-                            <TRContas lista={this.state.listaGastos} selecao={this.state.trSelecionadaGastos} onClick={this.remover.bind(this)} />
-                        </table>
+                        <TRContas tipo="GASTOS"
+                                  lista={this.state.listaGastos} 
+                                  selecao={this.state.trSelecionadaGastos} 
+                                  onClick={this.removerGastos.bind(this)} 
+                                  mes={this.state.mes}/>
                     </div>
                 </div>
 
@@ -290,20 +313,11 @@ class Contas extends Component{
                 {/* tabela ganho */}
                 <div id="div-ganho" className="pure-g ganho">
                     <div className="pure-u-5-5">
-                        <table className="pure-table">
-                            <thead>
-                                <tr className="header-table-name">
-                                    <th colSpan="3" id="">{this.state.mes}</th>
-                                </tr>
-                                <tr>
-                                    <th id="tableName">nome</th>
-                                    <th>valor</th>
-                                    <th>data</th>
-                                </tr>
-                            </thead>
-
-                            <TRContas lista={this.state.listaGanho} selecao={this.state.trSelecionadaGanho} onClick={this.remover} />
-                        </table>
+                        <TRContas tipo="GANHO"
+                                  lista={this.state.listaGanho} 
+                                  selecao={this.state.trSelecionadaGanho} 
+                                  onClick={this.removerGanho.bind(this)}
+                                  mes={this.state.mes}/>
                     </div>
                 </div>
 

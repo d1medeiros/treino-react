@@ -1,34 +1,29 @@
 import React, { Component } from 'react';
+import FaCheck from 'react-icons/lib/fa/check';
+import FaBan from 'react-icons/lib/fa/ban';
 
 export default class Popup extends Component{
 
     constructor(){
         super();
-        // this.state = {mostra: ''};
-        this.state = {classe: 'popup-display', mostrar: false};
-        this.sair = this.sair.bind(this);
-
-    }
-
-    sair(){
-        
+        this.state = {classe: 'popup-display'};
     }
 
     render(){
 
         return(
-            <div className={ this.state.mostrar ? "" : this.state.classe}>
-                <div className="popup-main" onClick={e => this.sair(e)}></div>
+            <div className={ this.props.mostrar ? "" : this.state.classe}>
+                <div className="popup-main" onClick={this.props.close}></div>
                 <div className="popup">
                     <div>
                         {this.props.label}
                     </div>
                     <div>
                         <button type="submit" className="button-success pure-button button-margin-3" onClick={this.props.confirmar}>
-                        v
+                        <FaCheck />
                         </button>
                         <button type="submit" className="button-error pure-button button-margin-3" onClick={this.props.recusar}>
-                        x
+                        <FaBan />
                         </button>
                     </div>
                 </div>

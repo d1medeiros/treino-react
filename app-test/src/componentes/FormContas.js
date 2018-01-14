@@ -12,6 +12,7 @@ export default class FormContas extends Component{
             estado: false, 
             repetir: false, 
             tipoConta: '',
+            alterarTodos: false,
             formAcao: 'salva'
         };
         this.salva = this.salva.bind(this);
@@ -50,39 +51,44 @@ export default class FormContas extends Component{
 
     salva(event){
         event.preventDefault();
-        var isInt = this.props.acao - this.props.acao === 0;
-        var a = isInt ? 'altera' : 'salva' ;
+        var a = '';
+        if(this.props.acao){
+            a = this.state.alterarTodos ? 'altera/todos' : 'altera';
+        }else{
+            a = 'salva';
+        }
         const tUrl = 'http://localhost:8080/meuorcamento/api/conta/' + a;
+        
         console.log(this.props.acao);
         console.log(tUrl);
 
-            $.ajax({
-                type:'post',
-                url: tUrl,
-                contentType:'application/json',
-                dataType:'json',
-                data: JSON.stringify({
-                    id: this.props.acao,
-                    nome: this.state.nome,
-                    valor: this.state.valor,
-                    dataPagamento: this.state.dataPagamento,
-                    estado: this.state.estado,
-                    repetir: this.state.repetir,
-                    tipoConta: this.state.tipoConta
-                }),
-                success: function(){
-                    var acaoAltera = this.state.formAcao;
-                    this.setState({nome:'', valor:0, dataPagamento:'', estado: false, repetir: false, tipoConta: ''});
-                    if(acaoAltera === 'altera'){
-                        this.props.rota.push('/contas')         
-                    }
-                    console.log(this.state)
-                }.bind(this),
-                error: function(res, req){
-                    console.log(res.status)
+        $.ajax({
+            type:'post',
+            url: tUrl,
+            contentType:'application/json',
+            dataType:'json',
+            data: JSON.stringify({
+                id: this.props.acao,
+                nome: this.state.nome,
+                valor: this.state.valor,
+                dataPagamento: this.state.dataPagamento,
+                estado: this.state.estado,
+                repetir: this.state.repetir,
+                tipoConta: this.state.tipoConta
+            }),
+            success: function(){
+                var acaoAltera = this.state.formAcao;
+                this.setState({nome:'', valor:0, dataPagamento:'', estado: false, repetir: false, tipoConta: '', alterarTodos: false});
+                if(acaoAltera === 'altera'){
+                    this.props.rota.push('/contas')         
                 }
-                
-            });
+                console.log(this.state)
+            }.bind(this),
+            error: function(res, req){
+                console.log(res.status)
+            }
+            
+        });
         
     }
     
@@ -106,7 +112,7 @@ export default class FormContas extends Component{
             <div>
                  <form className="pure-form pure-form-stacked" onSubmit={this.salva}>
                     <fieldset>
-        
+                        
                         <label htmlFor="nome">Nome</label>
                         <input id="nome" type="text" placeholder="nome da conta" value={this.state.nome} onChange={this.salvaAlteracao.bind(this,'nome')}/>
         
@@ -129,6 +135,11 @@ export default class FormContas extends Component{
                         <div className={this.state.formAcao}>
                             <label  htmlFor="repetir">Repetir</label>
                             <input id="repetir" type="checkbox" checked={this.state.repetir} onChange={this.salvaAlteracao.bind(this,'repetir')} />
+                        </div>
+        
+                        <div className={this.state.formAcao} id="alteraShow">
+                            <label  htmlFor="repetir">Deve alterar em todos?</label>
+                            <input id="alterarTodos" type="checkbox" checked={this.state.alterarTodos} onChange={this.salvaAlteracao.bind(this,'alterarTodos')} />
                         </div>
 
         

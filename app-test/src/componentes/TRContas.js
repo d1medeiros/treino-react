@@ -1,16 +1,24 @@
 import React,{Component} from 'react';
 import Edit from 'react-icons/lib/fa/edit';
 import FaTimesCircle from 'react-icons/lib/fa/times-circle';
-
+import Popup from './Popup';
 import {Link} from 'react-router';
+import PubSub from 'pubsub-js';
 
 export default class TRContas extends Component{
     
     constructor(){
         super();
-        this.state = {trSelecionada:0}
+        this.state = {trSelecionada: 0, 
+                        popupRemoverMostrar: false, 
+                        contaComp: {}, 
+                        tipoConta: ''}
         this.selecionaConta = this.selecionaConta.bind(this);
-        // this.editar = this.editar.bind(this);
+    }
+
+    componentDidMount(){
+        this.setState({tipoConta: this.props.tipo});
+        console.log("TRContas componentDidMount");
     }
 
     selecionaConta(event, conta){
@@ -21,37 +29,77 @@ export default class TRContas extends Component{
         }
     }
 
-    
+    clickPopup(e, conta){
+        console.log(conta)
+        this.setState({popupRemoverMostrar: true, contaComp: conta});
+    }
 
+    popupConfirm(){
+        var obj = {conta: this.state.contaComp, tipo: this.state.tipoConta};
+        console.log(obj);
+        PubSub.publish('popup.confirmar', obj);
+        this.setState({popupRemoverMostrar: false, contaComp: {}});
+    }
+
+    popupRecusar(){
+        var obj = {conta: this.state.contaComp, tipo: this.state.tipoConta};
+        console.log(obj);
+        PubSub.publish('popup.recusar', obj);
+        this.setState({popupRemoverMostrar: false, contaComp: {}});
+    }
+
+    popupSair(){
+        this.setState({popupRemoverMostrar: false, contaComp: {}});
+    }
 
     render(){
         return(
-            <tbody>
-            {
-                this.props.lista.map(function(conta){
-                    return(
-                        <tr className={conta.estado?"estado-ok":""} 
-                        id={conta.id === this.state.trSelecionada?"selected":"" }
-                        key={conta.id} 
-                        onClick={e => this.selecionaConta(e, conta)} >
-                            <td>
-                                <div className={conta.id === this.state.trSelecionada?"show":"hide" }>
-                                    <Link  className="pure-button button-margin-3" to={'/cadastro/' + conta.id}>
-                                        <Edit/>
-                                    </Link>
-                                    <button type="submit" className="button-error pure-button button-margin-3" onClick={e => this.props.onClick(e, conta)}>
-                                        <FaTimesCircle/>
-                                    </button>
-                                </div>
-                                {conta.nome}
-                            </td>
-                            <td>{conta.valor}</td>
-                            <td>{conta.dataPagamento}</td>
-                        </tr>  
-                    );
-                }.bind(this))
-            }
-        </tbody>
+                <div>
+
+                    <Popup label="Deseja remover todos repetidos para o mesmo?" mostrar={this.state.popupRemoverMostrar} 
+                    confirmar={this.popupConfirm.bind(this)} recusar={this.popupRecusar.bind(this)} close={this.popupSair.bind(this)}/>
+
+                    <table className="pure-table">
+                        <thead>
+                            <tr className="header-table-name">
+                                <th colSpan="3" id="">{this.props.mes}</th>
+                                
+                            </tr>
+                            <tr>
+                                <th id="tableName">nome</th>
+                                <th>valor</th>
+                                <th>data</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        {
+                            this.props.lista.map(function(conta){
+                                return(
+                                    <tr className={conta.estado?"estado-ok":""} 
+                                    id={conta.id === this.state.trSelecionada?"selected":"" }
+                                    key={conta.id} 
+                                    onClick={e => this.selecionaConta(e, conta)} >
+                                        <td>
+                                            <div className={conta.id === this.state.trSelecionada?"show":"hide" }>
+                                                <Link  className="pure-button button-margin-3" to={'/cadastro/' + conta.id}>
+                                                    <Edit/>
+                                                </Link>
+                                                <button type="submit" className="button-error pure-button button-margin-3" onClick={e => this.clickPopup(e, conta)}>
+                                                    <FaTimesCircle/>
+                                                </button>
+                                            </div>
+                                            {conta.nome}
+                                        </td>
+                                        <td>{conta.valor}</td>
+                                        <td>{conta.dataPagamento}</td>
+                                    </tr>  
+                                );
+                            }.bind(this))
+                        }
+                        </tbody>
+                    </table>
+                </div>
         );
     };
 
